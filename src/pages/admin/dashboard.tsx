@@ -61,7 +61,11 @@ export default function AdminDashboard() {
                     <CardTitle className="text-base">Property Status Breakdown</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 flex-wrap">
+                        <div className="flex items-center gap-2">
+                            <Badge variant="outline">Draft</Badge>
+                            <span className="font-medium">{data.propertyStats.draft}</span>
+                        </div>
                         <div className="flex items-center gap-2">
                             <Badge variant="secondary">Review</Badge>
                             <span className="font-medium">{data.propertyStats.review}</span>

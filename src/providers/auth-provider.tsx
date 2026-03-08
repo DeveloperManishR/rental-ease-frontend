@@ -18,8 +18,8 @@ import type {
 interface AuthContextType {
     user: User | null;
     isLoading: boolean;
-    login: (payload: LoginPayload) => Promise<void>;
-    register: (payload: RegisterPayload) => Promise<void>;
+    login: (payload: LoginPayload) => Promise<User>;
+    register: (payload: RegisterPayload) => Promise<User>;
     logout: () => Promise<void>;
 }
 
@@ -44,20 +44,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         fetchProfile();
     }, []);
 
-    const login = useCallback(async (payload: LoginPayload) => {
+    const login = useCallback(async (payload: LoginPayload): Promise<User> => {
         const { data } = await api.post<ApiResponse<AuthResponse>>(
             "/public/login",
             payload
         );
         if (data.success) setUser(data.data.user);
+        return data.data.user;
     }, []);
 
-    const register = useCallback(async (payload: RegisterPayload) => {
+    const register = useCallback(async (payload: RegisterPayload): Promise<User> => {
         const { data } = await api.post<ApiResponse<AuthResponse>>(
             "/public/register",
             payload
         );
         if (data.success) setUser(data.data.user);
+        return data.data.user;
     }, []);
 
     const logout = useCallback(async () => {

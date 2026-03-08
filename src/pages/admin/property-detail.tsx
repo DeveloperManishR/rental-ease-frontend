@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import type { User as UserType } from "@/types";
 
 const statusVariant: Record<string, "default" | "secondary" | "outline"> = {
+  draft: "outline",
   review: "secondary",
   published: "default",
   rejected: "outline",

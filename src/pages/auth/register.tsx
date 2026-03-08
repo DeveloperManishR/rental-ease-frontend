@@ -44,7 +44,7 @@ export default function RegisterPage() {
                 tenant: "/tenant/properties",
                 owner: "/owner/properties",
             };
-            navigate(dashboardMap[role]);
+            navigate(dashboardMap[role] || "/login");
         } catch (err: unknown) {
             const error = err as { response?: { data?: { message?: string } } };
             toast.error(error.response?.data?.message || "Registration failed");

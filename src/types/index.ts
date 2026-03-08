@@ -37,7 +37,7 @@ export interface User {
 }
 
 // ─── Property ───
-export type PropertyStatus = "review" | "published" | "rejected" | "cancelled";
+export type PropertyStatus = "draft" | "review" | "published" | "rejected" | "cancelled";
 
 export interface Property {
   _id: string;
@@ -114,6 +114,7 @@ export interface DashboardStats {
   totalTickets: number;
   openTickets: number;
   propertyStats: {
+    draft: number;
     review: number;
     published: number;
     rejected: number;

@@ -26,21 +26,15 @@ export default function LoginPage() {
 
         setIsLoading(true);
         try {
-            await login({ email, password });
-            // Auth provider sets the user; we redirect based on role
-            // We'll read user from the response indirectly via the provider
-            // For now use a small timeout to let state settle
+            const user = await login({ email, password });
             toast.success("Logged in successfully");
 
-            // Re-fetch to get role for redirect
-            const { data } = await (await import("@/lib/axios")).default.get("/auth/profile");
-            const role = data?.data?.role;
             const dashboardMap: Record<string, string> = {
                 tenant: "/tenant/properties",
                 owner: "/owner/properties",
                 admin: "/admin/dashboard",
             };
-            navigate(dashboardMap[role] || "/login");
+            navigate(dashboardMap[user?.role] || "/login");
         } catch (err: unknown) {
             const error = err as { response?: { data?: { message?: string } } };
             toast.error(error.response?.data?.message || "Login failed");

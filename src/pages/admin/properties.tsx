@@ -21,6 +21,7 @@ import {
 import type { Property, User } from "@/types";
 
 const statusVariant: Record<string, "default" | "secondary" | "outline"> = {
+    draft: "outline",
     review: "secondary",
     published: "default",
     rejected: "outline",
@@ -53,6 +54,7 @@ export default function AdminProperties() {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="draft">Draft</SelectItem>
                         <SelectItem value="review">Review</SelectItem>
                         <SelectItem value="published">Published</SelectItem>
                         <SelectItem value="rejected">Rejected</SelectItem>
