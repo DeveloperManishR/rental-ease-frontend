@@ -34,6 +34,7 @@ import OwnerVisits from "@/pages/owner/visits";
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminUsers from "@/pages/admin/users";
 import AdminProperties from "@/pages/admin/properties";
+import AdminPropertyDetail from "@/pages/admin/property-detail";
 import AdminTickets from "@/pages/admin/tickets";
 import AdminTicketDetail from "@/pages/admin/ticket-detail";
 
@@ -95,6 +96,7 @@ export default function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="properties" element={<AdminProperties />} />
+          <Route path="properties/:id" element={<AdminPropertyDetail />} />
           <Route path="tickets" element={<AdminTickets />} />
           <Route path="tickets/:id" element={<AdminTicketDetail />} />
           <Route path="profile" element={<ProfilePage />} />

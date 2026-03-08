@@ -19,6 +19,9 @@ export default function EditProperty() {
     const navigate = useNavigate();
     const { data: property, isLoading } = usePropertyById(id!);
     const mutation = useUpdateProperty();
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    const today = now.toISOString().split("T")[0];
 
     const [amenities, setAmenities] = useState("");
     const [rules, setRules] = useState("");
@@ -36,6 +39,12 @@ export default function EditProperty() {
         e.preventDefault();
         const fd = new FormData(e.currentTarget);
         try {
+            const imgList = images.split(",").map((s) => s.trim()).filter(Boolean);
+            if (imgList.length > 4) {
+                toast.error("Maximum 4 images allowed");
+                return;
+            }
+
             await mutation.mutateAsync({
                 id: id!,
                 title: fd.get("title") as string,
@@ -46,7 +55,7 @@ export default function EditProperty() {
                 deposit: Number(fd.get("deposit") || 0),
                 amenities: amenities.split(",").map((s) => s.trim()).filter(Boolean),
                 rules: rules.split(",").map((s) => s.trim()).filter(Boolean),
-                images: images.split(",").map((s) => s.trim()).filter(Boolean),
+                images: imgList,
                 availableFrom: (fd.get("availableFrom") as string) || undefined,
             });
             toast.success("Property updated");
@@ -113,6 +122,7 @@ export default function EditProperty() {
                                     id="availableFrom"
                                     name="availableFrom"
                                     type="date"
+                                    min={today}
                                     defaultValue={
                                         property.availableFrom
                                             ? new Date(property.availableFrom).toISOString().split("T")[0]

@@ -46,7 +46,6 @@ export default function AdminUsers() {
                         <SelectItem value="all">All</SelectItem>
                         <SelectItem value="tenant">Tenant</SelectItem>
                         <SelectItem value="owner">Owner</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                 </Select>
             </div>

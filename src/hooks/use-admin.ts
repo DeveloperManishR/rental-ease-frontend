@@ -55,6 +55,20 @@ export function useAdminProperties(filters: {
   });
 }
 
+// ─── Single property detail (admin) ───
+export function useAdminPropertyById(id: string) {
+  return useQuery({
+    queryKey: ["admin", "property", id],
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<Property>>(
+        `/admin/properties/${id}`
+      );
+      return data.data;
+    },
+    enabled: !!id,
+  });
+}
+
 // ─── Review property (approve/reject) ───
 export function useReviewProperty() {
   const qc = useQueryClient();

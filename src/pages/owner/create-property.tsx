@@ -21,12 +21,22 @@ export default function CreateProperty() {
     const [rules, setRules] = useState("");
     const [images, setImages] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    const today = now.toISOString().split("T")[0];
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const fd = new FormData(e.currentTarget);
         setIsSubmitting(true);
         try {
+            const imgList = images.split(",").map((s) => s.trim()).filter(Boolean);
+            if (imgList.length > 4) {
+                toast.error("Maximum 4 images allowed");
+                setIsSubmitting(false);
+                return;
+            }
+
             await mutation.mutateAsync({
                 title: fd.get("title") as string,
                 description: fd.get("description") as string,
@@ -42,13 +52,10 @@ export default function CreateProperty() {
                     .split(",")
                     .map((s) => s.trim())
                     .filter(Boolean),
-                images: images
-                    .split(",")
-                    .map((s) => s.trim())
-                    .filter(Boolean),
+                images: imgList,
                 availableFrom: fd.get("availableFrom") as string || undefined,
             });
-            toast.success("Property created as draft");
+            toast.success("Property submitted for review");
             navigate("/owner/properties");
         } catch (err: unknown) {
             const error = err as { response?: { data?: { message?: string } } };
@@ -110,7 +117,7 @@ export default function CreateProperty() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="availableFrom">Available From</Label>
-                                <Input id="availableFrom" name="availableFrom" type="date" />
+                                <Input id="availableFrom" name="availableFrom" type="date" min={today} />
                             </div>
                         </div>
                         <div className="space-y-2">

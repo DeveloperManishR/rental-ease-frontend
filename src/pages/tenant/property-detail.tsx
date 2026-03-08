@@ -41,6 +41,9 @@ export default function PropertyDetail() {
 
     const [visitOpen, setVisitOpen] = useState(false);
     const [visitDate, setVisitDate] = useState("");
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    const today = now.toISOString().split("T")[0];
 
     const handleRequestVisit = async () => {
         if (!visitDate) {
@@ -235,6 +238,7 @@ export default function PropertyDetail() {
                         <Input
                             id="visitDate"
                             type="date"
+                            min={today}
                             value={visitDate}
                             onChange={(e) => setVisitDate(e.target.value)}
                         />

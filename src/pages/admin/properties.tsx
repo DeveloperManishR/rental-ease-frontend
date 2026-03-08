@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useAdminProperties, useReviewProperty } from "@/hooks/use-admin";
+import { useNavigate } from "react-router-dom";
+import { useAdminProperties } from "@/hooks/use-admin";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,17 +18,17 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Check, X } from "@phosphor-icons/react";
-import { toast } from "sonner";
 import type { Property, User } from "@/types";
 
 const statusVariant: Record<string, "default" | "secondary" | "outline"> = {
-    draft: "outline",
     review: "secondary",
     published: "default",
+    rejected: "outline",
+    cancelled: "outline",
 };
 
 export default function AdminProperties() {
+    const navigate = useNavigate();
     const [page, setPage] = useState(1);
     const [status, setStatus] = useState("all");
 
@@ -36,17 +37,6 @@ export default function AdminProperties() {
         limit: 10,
         status: status === "all" ? undefined : status,
     });
-
-    const reviewMutation = useReviewProperty();
-
-    const handleReview = async (id: string, action: "approve" | "reject") => {
-        try {
-            await reviewMutation.mutateAsync({ id, action });
-            toast.success(action === "approve" ? "Property approved" : "Property rejected");
-        } catch {
-            toast.error("Failed to review property");
-        }
-    };
 
     return (
         <div className="space-y-6">
@@ -63,9 +53,10 @@ export default function AdminProperties() {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">All</SelectItem>
-                        <SelectItem value="draft">Draft</SelectItem>
                         <SelectItem value="review">Review</SelectItem>
                         <SelectItem value="published">Published</SelectItem>
+                        <SelectItem value="rejected">Rejected</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
@@ -78,12 +69,13 @@ export default function AdminProperties() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead>Image</TableHead>
                                     <TableHead>Title</TableHead>
                                     <TableHead>Owner</TableHead>
                                     <TableHead>City</TableHead>
                                     <TableHead>Rent</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                                    <TableHead className="text-right">Details</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -91,6 +83,17 @@ export default function AdminProperties() {
                                     const owner = typeof prop.ownerId === "object" ? (prop.ownerId as User) : null;
                                     return (
                                         <TableRow key={prop._id}>
+                                            <TableCell>
+                                                {prop.images?.[0] ? (
+                                                    <img
+                                                        src={prop.images[0]}
+                                                        alt={prop.title}
+                                                        className="h-12 w-20 rounded object-cover"
+                                                    />
+                                                ) : (
+                                                    <span className="text-xs text-muted-foreground">No image</span>
+                                                )}
+                                            </TableCell>
                                             <TableCell className="font-medium">{prop.title}</TableCell>
                                             <TableCell>{owner?.name ?? "—"}</TableCell>
                                             <TableCell>{prop.city}</TableCell>
@@ -101,26 +104,13 @@ export default function AdminProperties() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                {prop.status === "review" && (
-                                                    <div className="flex justify-end gap-1">
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            onClick={() => handleReview(prop._id, "approve")}
-                                                            disabled={reviewMutation.isPending}
-                                                        >
-                                                            <Check className="mr-1 size-3.5" /> Approve
-                                                        </Button>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            onClick={() => handleReview(prop._id, "reject")}
-                                                            disabled={reviewMutation.isPending}
-                                                        >
-                                                            <X className="mr-1 size-3.5" /> Reject
-                                                        </Button>
-                                                    </div>
-                                                )}
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => navigate(`/admin/properties/${prop._id}`)}
+                                                >
+                                                    View Details
+                                                </Button>
                                             </TableCell>
                                         </TableRow>
                                     );

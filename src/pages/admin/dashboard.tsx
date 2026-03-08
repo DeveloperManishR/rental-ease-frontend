@@ -63,16 +63,20 @@ export default function AdminDashboard() {
                 <CardContent>
                     <div className="flex gap-4">
                         <div className="flex items-center gap-2">
-                            <Badge variant="outline">Draft</Badge>
-                            <span className="font-medium">{data.propertyStats.draft}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
                             <Badge variant="secondary">Review</Badge>
                             <span className="font-medium">{data.propertyStats.review}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Badge variant="default">Published</Badge>
                             <span className="font-medium">{data.propertyStats.published}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Badge variant="outline">Rejected</Badge>
+                            <span className="font-medium">{data.propertyStats.rejected}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Badge variant="outline">Cancelled</Badge>
+                            <span className="font-medium">{data.propertyStats.cancelled}</span>
                         </div>
                     </div>
                 </CardContent>

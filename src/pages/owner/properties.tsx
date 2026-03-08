@@ -23,9 +23,10 @@ import { toast } from "sonner";
 import type { Property } from "@/types";
 
 const statusVariant: Record<string, "default" | "secondary" | "outline"> = {
-    draft: "outline",
     review: "secondary",
     published: "default",
+    rejected: "outline",
+    cancelled: "outline",
 };
 
 export default function OwnerProperties() {
@@ -82,9 +83,10 @@ export default function OwnerProperties() {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">All</SelectItem>
-                        <SelectItem value="draft">Draft</SelectItem>
                         <SelectItem value="review">Review</SelectItem>
                         <SelectItem value="published">Published</SelectItem>
+                        <SelectItem value="rejected">Rejected</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
@@ -121,7 +123,7 @@ export default function OwnerProperties() {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-1">
-                                                {prop.status === "draft" && (
+                                                {["rejected", "cancelled"].includes(prop.status) && (
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
