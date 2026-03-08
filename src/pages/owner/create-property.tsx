@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreateProperty } from "@/hooks/use-properties";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft } from "@phosphor-icons/react";
+import { ArrowLeft, X } from "@phosphor-icons/react";
 import { toast } from "sonner";
 
 export default function CreateProperty() {
@@ -19,42 +19,57 @@ export default function CreateProperty() {
     const mutation = useCreateProperty();
     const [amenities, setAmenities] = useState("");
     const [rules, setRules] = useState("");
-    const [images, setImages] = useState("");
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     const today = now.toISOString().split("T")[0];
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        const total = selectedFiles.length + files.length;
+        if (total > 4) {
+            toast.error("Maximum 4 images allowed");
+            return;
+        }
+        setSelectedFiles((prev) => [...prev, ...files]);
+        // Reset input so user can select more
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+
+    const removeFile = (index: number) => {
+        setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    };
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const fd = new FormData(e.currentTarget);
         setIsSubmitting(true);
         try {
-            const imgList = images.split(",").map((s) => s.trim()).filter(Boolean);
-            if (imgList.length > 4) {
-                toast.error("Maximum 4 images allowed");
-                setIsSubmitting(false);
-                return;
+            const formData = new FormData();
+            formData.append("title", fd.get("title") as string);
+            formData.append("description", fd.get("description") as string);
+            formData.append("location", fd.get("location") as string);
+            formData.append("city", fd.get("city") as string);
+            formData.append("rent", fd.get("rent") as string);
+            formData.append("deposit", (fd.get("deposit") as string) || "0");
+
+            const availableFrom = fd.get("availableFrom") as string;
+            if (availableFrom) formData.append("availableFrom", availableFrom);
+
+            const amenityList = amenities.split(",").map((s) => s.trim()).filter(Boolean);
+            formData.append("amenities", JSON.stringify(amenityList));
+
+            const ruleList = rules.split(",").map((s) => s.trim()).filter(Boolean);
+            formData.append("rules", JSON.stringify(ruleList));
+
+            // Append image files
+            for (const file of selectedFiles) {
+                formData.append("images", file);
             }
 
-            await mutation.mutateAsync({
-                title: fd.get("title") as string,
-                description: fd.get("description") as string,
-                location: fd.get("location") as string,
-                city: fd.get("city") as string,
-                rent: Number(fd.get("rent")),
-                deposit: Number(fd.get("deposit") || 0),
-                amenities: amenities
-                    .split(",")
-                    .map((s) => s.trim())
-                    .filter(Boolean),
-                rules: rules
-                    .split(",")
-                    .map((s) => s.trim())
-                    .filter(Boolean),
-                images: imgList,
-                availableFrom: fd.get("availableFrom") as string || undefined,
-            });
+            await mutation.mutateAsync(formData);
             toast.success("Property submitted for review");
             navigate("/owner/properties");
         } catch (err: unknown) {
@@ -138,15 +153,46 @@ export default function CreateProperty() {
                                 placeholder="No pets, No smoking"
                             />
                         </div>
+
+                        {/* Image Upload */}
                         <div className="space-y-2">
-                            <Label htmlFor="images">Image URLs (comma-separated)</Label>
+                            <Label>Property Images (max 4)</Label>
                             <Input
-                                id="images"
-                                value={images}
-                                onChange={(e) => setImages(e.target.value)}
-                                placeholder="https://…, https://…"
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={handleFileSelect}
+                                disabled={selectedFiles.length >= 4}
                             />
+                            {selectedFiles.length > 0 && (
+                                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                                    {selectedFiles.map((file, i) => (
+                                        <div key={i} className="group relative aspect-video overflow-hidden rounded-lg border">
+                                            <img
+                                                src={URL.createObjectURL(file)}
+                                                alt={file.name}
+                                                className="h-full w-full object-cover"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeFile(i)}
+                                                className="absolute right-1 top-1 rounded-full bg-destructive p-1 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                                            >
+                                                <X className="size-3" />
+                                            </button>
+                                            <span className="absolute bottom-0 left-0 right-0 truncate bg-black/50 px-1 text-xs text-white">
+                                                {file.name}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            <p className="text-xs text-muted-foreground">
+                                {selectedFiles.length}/4 images selected
+                            </p>
                         </div>
+
                         <Button type="submit" disabled={isSubmitting}>
                             {isSubmitting ? "Creating…" : "Create Property"}
                         </Button>

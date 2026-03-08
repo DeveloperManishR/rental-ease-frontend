@@ -59,10 +59,11 @@ export function useMyProperties(filters: {
 export function useCreateProperty() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: Partial<Property>) => {
+    mutationFn: async (formData: FormData) => {
       const { data } = await api.post<ApiResponse<Property>>(
         "/properties",
-        payload
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
       return data.data;
     },
@@ -74,13 +75,11 @@ export function useCreateProperty() {
 export function useUpdateProperty() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({
-      id,
-      ...payload
-    }: Partial<Property> & { id: string }) => {
+    mutationFn: async ({ id, formData }: { id: string; formData: FormData }) => {
       const { data } = await api.put<ApiResponse<Property>>(
         `/properties/${id}`,
-        payload
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
       return data.data;
     },
