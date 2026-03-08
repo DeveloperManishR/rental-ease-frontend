@@ -61,7 +61,7 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
-      {/* Tenant Routes */}
+      
       <Route element={<ProtectedRoute allowedRoles={["tenant"]} />}>
         <Route path="/tenant" element={<TenantLayout />}>
           <Route index element={<Navigate to="properties" replace />} />
@@ -77,7 +77,7 @@ export default function App() {
         </Route>
       </Route>
 
-      {/* Owner Routes */}
+      
       <Route element={<ProtectedRoute allowedRoles={["owner"]} />}>
         <Route path="/owner" element={<OwnerLayout />}>
           <Route index element={<Navigate to="properties" replace />} />
@@ -89,7 +89,7 @@ export default function App() {
         </Route>
       </Route>
 
-      {/* Admin Routes */}
+      
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
@@ -103,7 +103,7 @@ export default function App() {
         </Route>
       </Route>
 
-      {/* Catch-all */}
+      
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
